@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pharmacy Inventory Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ 
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="pill-logo">💊</div>
+    <h2>Pharmacy IMS</h2>
+    <span>Inventory Management</span>
+  </div>
+  <nav class="nav-section">
+    <div class="nav-label">Main</div>
+    <button class="nav-item active" onclick="showPage('dashboard', this)">
+      <span class="nav-icon">🏠</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="showPage('add', this)">
+      <span class="nav-icon">➕</span> Add Medicine
+    </button>
+    <button class="nav-item" onclick="showPage('inventory', this)">
+      <span class="nav-icon">📋</span> View Inventory
+    </button>
+    <div class="nav-label">Alerts</div>
+    <button class="nav-item" onclick="showPage('lowstock', this)">
+      <span class="nav-icon">⚠️</span> Low Stock
+    </button>
+    <button class="nav-item" onclick="showPage('expiry', this)">
+      <span class="nav-icon">🗓️</span> Expiry Monitor
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    Made with ❤️ &nbsp;|&nbsp; BCA Project
+  </div>
+</div>
+ 
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <h1 id="page-title">Dashboard</h1>
+      <div class="topbar-date" id="today-date"></div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span id="topbar-badge" style="display:none;background:#FDEDEC;color:#E74C3C;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;"></span>
+    </div>
+  </div>
+ 
+  <div class="content">
+ 
+    <!-- DASHBOARD PAGE -->
+    <div class="page active" id="page-dashboard">
+      <div class="welcome-banner">
+        <div>
+          <h2>Welcome back, Pharmacist! 👋</h2>
+          <p>Here's your inventory overview for today.</p>
+        </div>
+        <div class="big-icon">💊</div>
+      </div>
+ 
+      <div class="stats-grid" id="stats-grid"></div>
+ 
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex-wrap:wrap;">
+        <div class="card">
+          <div style="padding:20px;border-bottom:1px solid var(--border);">
+            <b style="font-family:Poppins,sans-serif;font-size:14px;">⚠️ Low Stock Medicines</b>
+          </div>
+          <div id="dash-lowstock" style="padding:16px;max-height:230px;overflow-y:auto;"></div>
+        </div>
+        <div class="card">
+          <div style="padding:20px;border-bottom:1px solid var(--border);">
+            <b style="font-family:Poppins,sans-serif;font-size:14px;">🗓️ Expiring Soon</b>
+          </div>
+          <div id="dash-expiry" style="padding:16px;max-height:230px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- ADD MEDICINE PAGE -->
+    <div class="page" id="page-add">
+      <div class="form-card" id="add-form-card">
+        <h3>➕ Add New Medicine</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Medicine Name *</label>
+            <input type="text" id="inp-name" placeholder="e.g., Paracetamol 500mg">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="inp-cat">
+              <option value="Antibiotic">Antibiotic</option>
+              <option value="Painkiller">Painkiller</option>
+              <option value="Antacid">Antacid</option>
+              <option value="Vitamin">Vitamin</option>
+              <option value="Antifungal">Antifungal</option>
+              <option value="Antihistamine">Antihistamine</option>
+              <option value="Other" selected>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Quantity (units) *</label>
+            <input type="number" id="inp-qty" placeholder="e.g., 100" min="0">
+          </div>
+          <div class="form-group">
+            <label>Price per unit (₹) *</label>
+            <input type="number" id="inp-price" placeholder="e.g., 25.50" min="0" step="0.01">
+          </div>
+          <div class="form-group">
+            <label>Manufacturing Date *</label>
+            <input type="date" id="inp-mfg">
+          </div>
+          <div class="form-group">
+            <label>Expiry Date *</label>
+            <input type="date" id="inp-exp">
+          </div>
+          <div class="form-group">
+            <label>Supplier / Company</label>
+            <input type="text" id="inp-supplier" placeholder="e.g., Sun Pharma">
+          </div>
+          <div class="form-group">
+            <label>Low Stock Threshold</label>
+            <input type="number" id="inp-threshold" placeholder="e.g., 20" min="1" value="20">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-green" onclick="addMedicine()">✅ Add Medicine</button>
+          <button class="btn btn-outline" onclick="clearForm()">🔄 Clear Form</button>
+        </div>
+      </div>
+ 
+      <div class="card">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-family:Poppins,sans-serif;font-size:14px;font-weight:700;">
+          📦 Recently Added Medicines
+        </div>
+        <div class="table-wrap">
+          <table id="recent-table">
+            <thead>
+              <tr>
+                <th>Name</th><th>Qty</th><th>Price</th><th>Expiry</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recent-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- INVENTORY PAGE -->
+    <div class="page" id="page-inventory">
+      <div class="form-card" style="padding:16px 20px;">
+        <div class="search-bar">
+          <input type="text" id="search-inp" placeholder="🔍 Search by name, category, supplier..." oninput="renderInventory()">
+          <select id="filter-cat" onchange="renderInventory()">
+            <option value="">All Categories</option>
+            <option>Antibiotic</option>
+            <option>Painkiller</option>
+            <option>Antacid</option>
+            <option>Vitamin</option>
+            <option>Antifungal</option>
+            <option>Antihistamine</option>
+            <option>Other</option>
+          </select>
+          <select id="filter-status" onchange="renderInventory()">
+            <option value="">All Status</option>
+            <option value="ok">In Stock</option>
+            <option value="low">Low Stock</option>
+            <option value="expired">Expired</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇️ Export CSV</button>
+        </div>
+      </div>
+ 
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Name</th><th>Category</th><th>Qty</th><th>Price</th>
+                <th>Mfg Date</th><th>Expiry</th><th>Supplier</th><th>Stock</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inv-tbody"></tbody>
+          </table>
+        </div>
+        <div id="inv-empty" class="empty-state" style="display:none;">
+          <div class="emo">📭</div>
+          <p>No medicines found. Add some from the <b>Add Medicine</b> page!</p>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- LOW STOCK PAGE -->
+    <div class="page" id="page-lowstock">
+      <div class="section-header">
+        <div>
+          <h2>⚠️ Low Stock Medicines</h2>
+          <p>Medicines that need restocking soon</p>
+        </div>
+        <button class="btn btn-green" onclick="showPage('add', document.querySelector('[onclick*=add]'))">+ Add Stock</button>
+      </div>
+ 
+      <div id="lowstock-alerts"></div>
+ 
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Medicine</th><th>Category</th><th>Current Qty</th>
+                <th>Threshold</th><th>Stock Level</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="lowstock-tbody"></tbody>
+          </table>
+        </div>
+        <div id="lowstock-empty" class="empty-state" style="display:none;">
+          <div class="emo">✅</div>
+          <p>All medicines are well stocked. Great job!</p>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- EXPIRY PAGE -->
+    <div class="page" id="page-expiry">
+      <div class="section-header">
+        <div>
+          <h2>🗓️ Expiry Monitor</h2>
+          <p>Track expired and soon-to-expire medicines</p>
+        </div>
+        <select id="expiry-filter" onchange="renderExpiry()" style="padding:8px 12px;border-radius:9px;border:1.5px solid var(--border);font-family:Nunito,sans-serif;font-size:13px;">
+          <option value="all">All</option>
+          <option value="expired">Expired</option>
+          <option value="30">Expiring in 30 days</option>
+          <option value="60">Expiring in 60 days</option>
+          <option value="90">Expiring in 90 days</option>
+        </select>
+      </div>
+ 
+      <div id="expiry-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;"></div>
+ 
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Medicine</th><th>Category</th><th>Qty</th>
+                <th>Mfg Date</th><th>Expiry Date</th><th>Days Left</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="expiry-tbody"></tbody>
+          </table>
+        </div>
+        <div id="expiry-empty" class="empty-state" style="display:none;">
+          <div class="emo">🎉</div>
+          <p>No expiry issues found!</p>
+        </div>
+      </div>
+    </div>
+ 
+  </div>
+</div>
+ 
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>✏️ Update Stock</h3>
+    <input type="hidden" id="edit-id">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Medicine Name</label>
+        <input type="text" id="edit-name">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="edit-cat">
+          <option>Antibiotic</option><option>Painkiller</option><option>Antacid</option>
+          <option>Vitamin</option><option>Antifungal</option><option>Antihistamine</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="number" id="edit-qty" min="0">
+      </div>
+      <div class="form-group">
+        <label>Price (₹)</label>
+        <input type="number" id="edit-price" min="0" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Manufacturing Date</label>
+        <input type="date" id="edit-mfg">
+      </div>
+      <div class="form-group">
+        <label>Expiry Date</label>
+        <input type="date" id="edit-exp">
+      </div>
+      <div class="form-group">
+        <label>Supplier</label>
+        <input type="text" id="edit-supplier">
+      </div>
+      <div class="form-group">
+        <label>Low Stock Threshold</label>
+        <input type="number" id="edit-threshold" min="1">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-green" onclick="saveEdit()">💾 Save Changes</button>
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+ 
+<script src="script.js"></script>
+</body>
+</html>
